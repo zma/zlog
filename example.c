@@ -26,17 +26,28 @@ int main(int argc, char* argv[])
     zlog_init_flush_thread();
 
     // start to use the in-memory log
-    
+   
+    // with timestamp
     zlogf_time("zlog is initialized\n");
 
-    zlogf_time("Command line: \n");
+    // without timestamp
+    zlogf("Command line: \n");
     for (i = 0; i < argc; i++) {
-        zlogf_time("%s ", argv[i]);
+        zlogf("%s ", argv[i]);
     }
+    zlogf("\n\n");
 
-    // Example only
-    printf("FOR TEST: I will sleep for 600 seconds... \n"
-            "Please be patient.\n");
+    zlogf_time("I flush the buffer explicitly.\n");
+    zlog_flush_buffer();
+
+    // with source code file and line info, and timestamp
+    zlog_time(ZLOG_LOC, "more logs...\n");
+
+    // with source code file and line info, and without timestamp
+    zlog(ZLOG_LOC, "and more logs...\n");
+
+    // Example only: let the flushing thread work
+    printf("FOR TEST: I will sleep for 600 seconds... Please be patient.\n");
     sleep(600);
 
     zlogf_time("finish using zlog\n");
