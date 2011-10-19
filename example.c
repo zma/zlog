@@ -33,7 +33,8 @@ int main(int argc, char* argv[])
     // without timestamp
     zlogf("Command line: \n");
     for (i = 0; i < argc; i++) {
-        zlogf("%s ", argv[i]);
+        // use the directives as the format of printf
+        zlogf("argv[%d]: %s \n", i, argv[i]);
     }
     zlogf("\n\n");
 
