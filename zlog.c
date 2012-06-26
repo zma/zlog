@@ -2,7 +2,7 @@
  * Zlog utility
  * Zhiqiang Ma
  * http://zhiqiangma.com
- * Released under GPLv3
+ * Released under GNU LGPL v3
  * Last update: Sep. 16, 2011
  */
 
