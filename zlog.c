@@ -1,7 +1,7 @@
 /*
  * Zlog utility
  * Zhiqiang Ma
- * http://zhiqiangma.com
+ * http://www.zhiqiangma.com
  * Released under GNU LGPL v3
  * Last update: Sep. 16, 2011
  */

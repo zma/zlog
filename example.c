@@ -1,5 +1,5 @@
 /*
- * Bug reports to: Zhiqiang Ma (http://zhiqiangma.com)
+ * Bug reports to: Zhiqiang Ma (http://www.zhiqiangma.com)
  * An example of zlog usage
  */
 
