@@ -3,7 +3,7 @@
  * Zhiqiang Ma
  * http://www.zhiqiangma.com
  * Released under GNU LGPL v3
- * Last update: Sep. 16, 2011
+ * Last update: Nov. 28, 2013
  */
 
 #include <stdio.h>
@@ -14,33 +14,28 @@
 #include <string.h>
 #include <time.h>
 #include <pthread.h>
+
+#include "zlog-config.h"
 #include "zlog.h"
 
-// #define ZLOG_DISABLE_LOG 1
-#define ZLOG_BUFFER_STR_MAX_LEN 128
-#define ZLOG_BUFFER_SIZE (0x1 << 22)
-// #define ZLOG_REAL_WORLD_TIME 1
-
-// only for debug, enabling this will slow down the log
-// #define ZLOG_FORCE_FLUSH_BUFFER
-
+// --------------------------------------------------------------
 // zlog utilities
 FILE* zlog_fout = NULL;
 
-// --------------------------------------------------------------
 char _zlog_buffer[ZLOG_BUFFER_SIZE][ZLOG_BUFFER_STR_MAX_LEN];
 int _zlog_buffer_size = 0;
 
 pthread_mutex_t _zlog_buffer_mutex = PTHREAD_MUTEX_INITIALIZER;
+// --------------------------------------------------------------
 
 static inline void _zlog_buffer_lock()
 {
-       pthread_mutex_lock(&_zlog_buffer_mutex);
+    pthread_mutex_lock(&_zlog_buffer_mutex);
 }
 
 static inline void _zlog_buffer_unlock()
 {
-       pthread_mutex_unlock(&_zlog_buffer_mutex);
+    pthread_mutex_unlock(&_zlog_buffer_mutex);
 }
 
 static void _zlog_flush_buffer()
@@ -56,7 +51,7 @@ static void _zlog_flush_buffer()
 // first zlog_get_buffer, write to @return
 // then zlog_finish_buffer
 //
-// zlog_get_buffer may flush the buffer, which requires lots I/O ops
+// zlog_get_buffer may flush the buffer, which require I/O ops
 static inline char* zlog_get_buffer()
 {
     _zlog_buffer_lock();
@@ -89,10 +84,6 @@ void zlog_init_stdout()
     zlog_fout = stdout;
 }
 
-#define ZLOG_FLUSH_INTERVAL_SEC 180
-// In practice: flush size < .8 * BUFFER_SIZE
-#define ZLOG_BUFFER_FLUSH_SIZE (0.8 * ZLOG_BUFFER_SIZE)
-
 void* zlog_buffer_flush_thread(void* arg)
 {
     struct timeval tv;
@@ -104,7 +95,7 @@ void* zlog_buffer_flush_thread(void* arg)
     lasttime = tv.tv_sec;
 
     do {
-        sleep(10);
+        sleep(ZLOG_SLEEP_TIME_SEC);
         gettimeofday(&tv, NULL);
         curtime = tv.tv_sec;
         if ( (curtime - lasttime) >= ZLOG_FLUSH_INTERVAL_SEC ) {
@@ -155,22 +146,19 @@ inline void zlogf(char const * fmt, ...)
     char* buffer = NULL;
 
     va_start(va, fmt);
-    // vfprintf(zlog_fout, fmt, va);
-    // fflush(zlog_fout);
     buffer = zlog_get_buffer();
-    vsprintf(buffer, fmt, va);
+    vsnprintf(buffer, ZLOG_BUFFER_STR_MAX_LEN, fmt, va);
     zlog_finish_buffer();
     va_end(va);
 }
 
-#define STR_BUFFER_SIZE 128
-inline void zlogf_time(char const * fmt, ...)
+void zlogf_time(char const * fmt, ...)
 {
 #ifdef ZLOG_DISABLE_LOG
     return ;
 #endif
 
-    char timebuf[STR_BUFFER_SIZE];
+    char timebuf[ZLOG_BUFFER_STR_MAX_LEN];
     struct timeval tv;
     time_t curtime;
     char* buffer = NULL;
@@ -180,32 +168,27 @@ inline void zlogf_time(char const * fmt, ...)
     gettimeofday(&tv, NULL);
     curtime=tv.tv_sec;
 #ifdef ZLOG_REAL_WORLD_TIME
-    strftime(timebuf, STR_BUFFER_SIZE, "%m-%d-%Y %T", localtime(&curtime));
+    strftime(timebuf, ZLOG_BUFFER_STR_MAX_LEN, "%m-%d-%Y %T", localtime(&curtime));
 #else
-    sprintf(timebuf, "%ld", curtime);
+    snprintf(timebuf, ZLOG_BUFFER_STR_MAX_LEN, "%ld", curtime);
 #endif
-    // fprintf(zlog_fout, "[%s.%06lds] ", buffer, tv.tv_usec);
     buffer = zlog_get_buffer();
-    sprintf(buffer, "[%s.%06lds] ", timebuf, tv.tv_usec);
+    snprintf(buffer, ZLOG_BUFFER_STR_MAX_LEN, "[%s.%06lds] ", timebuf, tv.tv_usec);
     buffer += strlen(timebuf) + 11; // space for time
 
     va_start(va, fmt);
-    // vfprintf(zlog_fout, fmt, va);
-    vsprintf(buffer, fmt, va);
-    // fflush(zlog_fout);
+    vsnprintf(buffer, ZLOG_BUFFER_STR_MAX_LEN, fmt, va);
     zlog_finish_buffer();
     va_end(va);
 }
-#undef STR_BUFFER_SIZE
 
-#define STR_BUFFER_SIZE 128
-inline void zlog_time(char* filename, int line, char const * fmt, ...)
+void zlog_time(char* filename, int line, char const * fmt, ...)
 {
 #ifdef ZLOG_DISABLE_LOG
     return ;
 #endif
 
-    static char timebuf[STR_BUFFER_SIZE];
+    static char timebuf[ZLOG_BUFFER_STR_MAX_LEN];
     struct timeval tv;
     time_t curtime;
     char* buffer = NULL;
@@ -215,27 +198,22 @@ inline void zlog_time(char* filename, int line, char const * fmt, ...)
     gettimeofday(&tv, NULL);
     curtime=tv.tv_sec;
 #ifdef ZLOG_REAL_WORLD_TIME
-    strftime(timebuf, STR_BUFFER_SIZE, "%m-%d-%Y %T", localtime(&curtime));
+    strftime(timebuf, ZLOG_BUFFER_STR_MAX_LEN, "%m-%d-%Y %T", localtime(&curtime));
 #else
-    sprintf(timebuf, "%ld", curtime);
+    snprintf(timebuf, ZLOG_BUFFER_STR_MAX_LEN, "%ld", curtime);
 #endif
 
     buffer = zlog_get_buffer();
-    // fprintf(zlog_fout, "[%s.%06lds] [@%s:%d]", timebuf, tv.tv_usec, filename, line);
-    sprintf(buffer, "[%s.%06lds] [@%s:%d]", timebuf, tv.tv_usec, filename, line);
-    // buffer += strlen(timebuf) + 13 + strlen(filename) + 7; // print at most 5 digit of line
+    snprintf(buffer, ZLOG_BUFFER_STR_MAX_LEN, "[%s.%06lds] [@%s:%d]", timebuf, tv.tv_usec, filename, line);
     buffer += strlen(buffer); // print at most 5 digit of line
 
     va_start(va, fmt);
-    // vfprintf(zlog_fout, fmt, va);
-    vsprintf(buffer, fmt, va);
-    // fflush(zlog_fout);
+    vsnprintf(buffer, ZLOG_BUFFER_STR_MAX_LEN, fmt, va);
     zlog_finish_buffer();
     va_end(va);
 }
-#undef STR_BUFFER_SIZE
 
-inline void zlog(char* filename, int line, char const * fmt, ...)
+void zlog(char* filename, int line, char const * fmt, ...)
 {
 #ifdef ZLOG_DISABLE_LOG
     return ;
@@ -245,14 +223,12 @@ inline void zlog(char* filename, int line, char const * fmt, ...)
     va_list va;
 
     buffer = zlog_get_buffer();
-    // fprintf(zlog_fout, "[@%s:%d]", filename, line);
-    sprintf(buffer, "[@%s:%d]", filename, line);
+    snprintf(buffer, ZLOG_BUFFER_STR_MAX_LEN, "[@%s:%d]", filename, line);
     va_start(va, fmt);
-    // vfprintf(zlog_fout, fmt, va);
-    vsprintf(buffer, fmt, va);
-    // fflush(zlog_fout);
+    vsnprintf(buffer, ZLOG_BUFFER_STR_MAX_LEN, fmt, va);
     zlog_finish_buffer();
     va_end(va);
 }
+
 // End zlog utilities
 
