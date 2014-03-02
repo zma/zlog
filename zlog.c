@@ -1,9 +1,7 @@
 /*
  * Zlog utility
- * Zhiqiang Ma
- * http://www.zhiqiangma.com
- * Released under GNU LGPL v3
- * Last update: Nov. 28, 2013
+ * Written by Zhiqiang Ma http://www.ericzma.com
+ * Released under Unlicense
  */
 
 #include <stdio.h>
