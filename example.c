@@ -1,11 +1,12 @@
 /*
- * Bug reports to: Zhiqiang Ma (http://www.zhiqiangma.com)
+ * Bug reports to: Zhiqiang Ma (http://www.ericzma.com)
  * An example of zlog usage
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <unistd.h>
 
 #include "zlog.h"
 
@@ -15,7 +16,7 @@ int main(int argc, char* argv[])
 
     // log to stdout
     zlog_init_stdout();
-    
+
     // or log to file
     // zlog_init("/tmp/zlog.log");
 
@@ -26,7 +27,7 @@ int main(int argc, char* argv[])
     zlog_init_flush_thread();
 
     // start to use the in-memory log
-   
+
     // with timestamp
     zlogf_time("zlog is initialized\n");
 
@@ -53,10 +54,10 @@ int main(int argc, char* argv[])
 
     zlogf_time("finish using zlog\n");
 
-    // Before quit, finish zlog which will flush all the 
+    // Before quit, finish zlog which will flush all the
     // logs in memory
     zlog_finish();
-    
+
     return 0;
 }
 
