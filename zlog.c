@@ -156,7 +156,7 @@ void zlogf_time(char const * fmt, ...)
     return ;
 #endif
 
-    char timebuf[ZLOG_BUFFER_STR_MAX_LEN];
+    char timebuf[ZLOG_BUFFER_TIME_STR_MAX_LEN];
     struct timeval tv;
     time_t curtime;
     char* buffer = NULL;
@@ -166,9 +166,9 @@ void zlogf_time(char const * fmt, ...)
     gettimeofday(&tv, NULL);
     curtime=tv.tv_sec;
 #ifdef ZLOG_REAL_WORLD_TIME
-    strftime(timebuf, ZLOG_BUFFER_STR_MAX_LEN, "%m-%d-%Y %T", localtime(&curtime));
+    strftime(timebuf, ZLOG_BUFFER_TIME_STR_MAX_LEN, "%m-%d-%Y %T", localtime(&curtime));
 #else
-    snprintf(timebuf, ZLOG_BUFFER_STR_MAX_LEN, "%ld", curtime);
+    snprintf(timebuf, ZLOG_BUFFER_TIME_STR_MAX_LEN, "%ld", curtime);
 #endif
     buffer = zlog_get_buffer();
     snprintf(buffer, ZLOG_BUFFER_STR_MAX_LEN, "[%s.%06lds] ", timebuf, tv.tv_usec);
@@ -186,7 +186,7 @@ void zlog_time(char* filename, int line, char const * fmt, ...)
     return ;
 #endif
 
-    static char timebuf[ZLOG_BUFFER_STR_MAX_LEN];
+    static char timebuf[ZLOG_BUFFER_TIME_STR_MAX_LEN];
     struct timeval tv;
     time_t curtime;
     char* buffer = NULL;
@@ -196,9 +196,9 @@ void zlog_time(char* filename, int line, char const * fmt, ...)
     gettimeofday(&tv, NULL);
     curtime=tv.tv_sec;
 #ifdef ZLOG_REAL_WORLD_TIME
-    strftime(timebuf, ZLOG_BUFFER_STR_MAX_LEN, "%m-%d-%Y %T", localtime(&curtime));
+    strftime(timebuf, ZLOG_BUFFER_TIME_STR_MAX_LEN, "%m-%d-%Y %T", localtime(&curtime));
 #else
-    snprintf(timebuf, ZLOG_BUFFER_STR_MAX_LEN, "%ld", curtime);
+    snprintf(timebuf, ZLOG_BUFFER_TIME_STR_MAX_LEN, "%ld", curtime);
 #endif
 
     buffer = zlog_get_buffer();
