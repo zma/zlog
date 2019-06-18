@@ -82,7 +82,7 @@ void zlog_init_stdout()
     zlog_fout = stdout;
 }
 
-void* zlog_buffer_flush_thread(void* arg)
+void* zlog_buffer_flush_thread()
 {
     struct timeval tv;
     time_t lasttime;
