@@ -43,14 +43,14 @@ int main(int argc, char* argv[])
     zlog_flush_buffer();
 
     // with source code file and line info, and timestamp
-    zlog_time(ZLOG_LOC, "more logs...\n");
+    zlog_time(ZLOG_LOC, "Log with file and line. TIMESTAMPED.\n");
 
     // with source code file and line info, and without timestamp
-    zlog(ZLOG_LOC, "and more logs...\n");
+    zlog(ZLOG_LOC, "Log with file and line. NO TIMESTAMP.\n");
 
     // Example only: let the flushing thread work
-    printf("FOR TEST: I will sleep for 600 seconds... Please be patient.\n");
-    sleep(600);
+    printf("FOR TEST: I will sleep for 10 seconds... Please be patient.\n");
+    sleep(10);
 
     zlogf_time("finish using zlog\n");
 
