@@ -50,7 +50,7 @@ int main(int argc, char* argv[])
 
     // Example only: let the flushing thread work
     printf("FOR TEST: I will sleep for 10 seconds... Please be patient.\n");
-    sleep(10);
+    sleep(200);
 
     zlogf_time("finish using zlog\n");
 
