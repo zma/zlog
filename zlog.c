@@ -202,7 +202,7 @@ void zlog_time(char* filename, int line, char const * fmt, ...)
 #endif
 
     buffer = zlog_get_buffer();
-    snprintf(buffer, ZLOG_BUFFER_STR_MAX_LEN, "[%s.%06lds] [@%s:%d]", timebuf, tv.tv_usec, filename, line);
+    snprintf(buffer, ZLOG_BUFFER_STR_MAX_LEN, "[%s.%06lds] [@%s:%d] ", timebuf, tv.tv_usec, filename, line);
     buffer += strlen(buffer); // print at most 5 digit of line
 
     va_start(va, fmt);
@@ -221,7 +221,8 @@ void zlog(char* filename, int line, char const * fmt, ...)
     va_list va;
 
     buffer = zlog_get_buffer();
-    snprintf(buffer, ZLOG_BUFFER_STR_MAX_LEN, "[@%s:%d]", filename, line);
+    snprintf(buffer, ZLOG_BUFFER_STR_MAX_LEN, "[@%s:%d] ", filename, line);
+    buffer += strlen(buffer);
     va_start(va, fmt);
     vsnprintf(buffer, ZLOG_BUFFER_STR_MAX_LEN, fmt, va);
     zlog_finish_buffer();
