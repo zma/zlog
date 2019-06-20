@@ -49,7 +49,7 @@ int main(int argc, char* argv[])
     zlog(ZLOG_LOC, "Log with file and line. NO TIMESTAMP.\n");
 
     // Example only: let the flushing thread work
-    printf("FOR TEST: I will sleep for 10 seconds... Please be patient.\n");
+    printf("FOR TEST: I will sleep for 200 seconds... Please be patient.\n");
     sleep(200);
 
     zlogf_time("finish using zlog\n");
