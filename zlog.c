@@ -12,6 +12,7 @@
 #include <string.h>
 #include <time.h>
 #include <pthread.h>
+#include <errno.h>
 
 #include "zlog-config.h"
 #include "zlog.h"
