@@ -70,11 +70,20 @@ static inline void zlog_finish_buffer()
     _zlog_buffer_unlock();
 }
 
+// Error reporting
+static inline void print_error(const char *function_name, char *error_msg){
+    fprintf(stderr, "Error in function %s: %s\n", function_name, error_msg);
+}
+
 // --------------------------------------------------------------
 
 void zlog_init(char const* log_file)
 {
     zlog_fout = fopen(log_file, "a+");
+    
+    if(!zlog_fout){
+        print_error(__func__, strerror(errno));
+    }
 }
 
 void zlog_init_stdout()
