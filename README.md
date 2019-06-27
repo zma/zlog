@@ -15,7 +15,7 @@ and DEBUG messages. If you want to include DEBUG messages you must compile
 with *-D DEBUG* flag. 
 
 Makefile contains the corresponding gcc compilation commands to both INFO
-and DEBUG mode. Please keep in mind that DEBUG mode will print INFO and
+and DEBUG mode. Please keep in mind that DEBUG mode will log INFO and
 DEBUG messages whilst INFO mode will discard all DEBUG messages. The 
 following Make commands can be used to compile either in DEBUG or INFO modes:
 
@@ -29,5 +29,9 @@ Source code of zlog can be downloaded from http://github.com/zma/zlog/ . The sou
 ## Author ##
 
 Zhiqiang Ma (http://www.ericzma.com).
+
+### Contributions ###
+
+RazviOverflow (https://github.com/RazviOverflow)
 
 

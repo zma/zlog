@@ -1,4 +1,4 @@
-# In order to compile in debuge mode, simply add -D DEBUG flag to gcc.
+# In order to compile in DEBUG mode, simply add -D DEBUG flag to gcc.
 # If you dont want debug mode, simply delete it. 
 
 default: info
