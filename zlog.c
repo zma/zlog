@@ -173,19 +173,23 @@ void zlogf_time(int msg_level, char const * fmt, ...)
 #endif
 
     if(msg_level <= ZLOG_LOG_LEVEL){
-        char timebuf[ZLOG_BUFFER_TIME_STR_MAX_LEN];
+         char timebuf[ZLOG_BUFFER_TIME_STR_MAX_LEN];
         struct timeval tv;
-        time_t curtime;
+        //time_t curtime;
         char* buffer = NULL;
+
+        time_t ltime;
+        ltime = time(NULL);
+        struct tm *tm_struct = localtime(&ltime);
 
         va_list va;
 
         gettimeofday(&tv, NULL);
-        curtime=tv.tv_sec;
+        //curtime=tv.tv_sec;
     #ifdef ZLOG_REAL_WORLD_TIME
         strftime(timebuf, ZLOG_BUFFER_TIME_STR_MAX_LEN, "%m-%d-%Y %T", localtime(&curtime));
     #else
-        snprintf(timebuf, ZLOG_BUFFER_TIME_STR_MAX_LEN, "%ld", curtime);
+        snprintf(timebuf, ZLOG_BUFFER_TIME_STR_MAX_LEN, "%d:%02d:%d", tm_struct->tm_hour, tm_struct->tm_min, tm_struct->tm_sec);
     #endif
         buffer = zlog_get_buffer();
         snprintf(buffer, ZLOG_BUFFER_STR_MAX_LEN, "[%s.%06lds] ", timebuf, tv.tv_usec);
