@@ -20,6 +20,8 @@ extern FILE* zlog_fout;
 void zlog_init(char const* log_file);
 // initialize zlog: flush to a STDOUT
 void zlog_init_stdout(void);
+// initialize zlog: flush to a STDERR
+void zlog_init_stderr(void);
 // creating a flushing thread
 void zlog_init_flush_thread();
 // finish using the zlog; clean up

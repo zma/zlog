@@ -92,6 +92,11 @@ void zlog_init_stdout()
     zlog_fout = stdout;
 }
 
+void zlog_init_stderr()
+{
+    zlog_fout = stderr;
+}
+
 void* zlog_buffer_flush_thread()
 {
     struct timeval tv;
@@ -143,10 +148,11 @@ void zlog_flush_buffer()
 void zlog_finish()
 {
     zlog_flush_buffer();
-    if (zlog_fout != stdout) {
+    if (zlog_fout != stdout || zlog_fout != stderr) {
         fclose(zlog_fout);
+        zlog_fout = stdout;
     }
-    zlog_fout = stdout;
+    
 }
 
 inline void zlogf(int msg_level, char const * fmt, ...)
