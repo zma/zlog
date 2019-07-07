@@ -13,6 +13,7 @@
 #endif
 
 extern FILE* zlog_fout;
+extern const char* zlog_file_log_name;
 
 // Start API
 
@@ -42,6 +43,10 @@ void zlog(int msg_level, char* filename, int line, char const * fmt, ...);
 
 // log an entry with the filename and location with a timestamp
 void zlog_time(int msg_level, char* filename, int line, char const * fmt, ...);
+
+// return where logs are being written (file absolute path)
+const char* zlog_get_log_file_name();
+
 
 // End API
 

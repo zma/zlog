@@ -20,6 +20,7 @@
 // --------------------------------------------------------------
 // zlog utilities
 FILE* zlog_fout = NULL;
+const char* zlog_file_log_name = NULL;
 
 char _zlog_buffer[ZLOG_BUFFER_SIZE][ZLOG_BUFFER_STR_MAX_LEN];
 int _zlog_buffer_size = 0;
@@ -80,6 +81,8 @@ static inline void print_error(const char *function_name, char *error_msg){
 
 void zlog_init(char const* log_file)
 {
+    zlog_file_log_name = strdup(log_file);
+
     zlog_fout = fopen(log_file, "a+");
     
     if(!zlog_fout){
@@ -257,6 +260,13 @@ void zlog(int msg_level, char* filename, int line, char const * fmt, ...)
         zlog_finish_buffer();
         va_end(va);
     }
+}
+
+const char* zlog_get_log_file_name(){
+#ifdef ZLOG_DISABLE_LOG
+    return ;
+#endif
+    return zlog_file_log_name;
 }
 
 // End zlog utilities
