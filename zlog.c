@@ -20,6 +20,7 @@
 // --------------------------------------------------------------
 // zlog utilities
 FILE* zlog_fout = NULL;
+const char* zlog_file_log_name = NULL;
 
 char _zlog_buffer[ZLOG_BUFFER_SIZE][ZLOG_BUFFER_STR_MAX_LEN];
 int _zlog_buffer_size = 0;
@@ -80,6 +81,8 @@ static inline void print_error(const char *function_name, char *error_msg){
 
 void zlog_init(char const* log_file)
 {
+    zlog_file_log_name = strdup(log_file);
+
     zlog_fout = fopen(log_file, "a+");
     
     if(!zlog_fout){
@@ -90,6 +93,11 @@ void zlog_init(char const* log_file)
 void zlog_init_stdout()
 {
     zlog_fout = stdout;
+}
+
+void zlog_init_stderr()
+{
+    zlog_fout = stderr;
 }
 
 void* zlog_buffer_flush_thread()
@@ -107,7 +115,12 @@ void* zlog_buffer_flush_thread()
         gettimeofday(&tv, NULL);
         curtime = tv.tv_sec;
         if ( (curtime - lasttime) >= ZLOG_FLUSH_INTERVAL_SEC ) {
-            zlogf_time("Flush buffer.\n");
+            // ZLOG_LOG_LEVEL is used to make the buffer flushing
+            // seamless for the user. It does not matter what level
+            // the messages are at this point because, if they do
+            // not meet message level requirement, thay wouldn't
+            // have been buffered in the first place. 
+            zlogf_time(ZLOG_LOG_LEVEL, "Flush buffer.\n");
             zlog_flush_buffer();
             lasttime = curtime;
         } else {
@@ -125,7 +138,7 @@ void zlog_init_flush_thread()
 {
     pthread_t thr;
     pthread_create(&thr, NULL, zlog_buffer_flush_thread, NULL);
-    zlogf_time("Flush thread is created.\n");
+    zlogf_time(ZLOG_LOG_LEVEL, "Flush thread is created.\n");
 }
 
 void zlog_flush_buffer()
@@ -138,105 +151,122 @@ void zlog_flush_buffer()
 void zlog_finish()
 {
     zlog_flush_buffer();
-    if (zlog_fout != stdout) {
+    if (zlog_fout != stdout || zlog_fout != stderr) {
         fclose(zlog_fout);
+        zlog_fout = stdout;
     }
-    zlog_fout = stdout;
+    
 }
 
-inline void zlogf(char const * fmt, ...)
+inline void zlogf(int msg_level, char const * fmt, ...)
+{
+#ifdef ZLOG_DISABLE_LOG
+    return ;
+#endif
+    if(msg_level <= ZLOG_LOG_LEVEL){
+        va_list va;
+        char* buffer = NULL;
+
+        va_start(va, fmt);
+        buffer = zlog_get_buffer();
+        vsnprintf(buffer, ZLOG_BUFFER_STR_MAX_LEN, fmt, va);
+        zlog_finish_buffer();
+        va_end(va);
+    }   
+}
+
+void zlogf_time(int msg_level, char const * fmt, ...)
 {
 #ifdef ZLOG_DISABLE_LOG
     return ;
 #endif
 
-    va_list va;
-    char* buffer = NULL;
+    if(msg_level <= ZLOG_LOG_LEVEL){
+         char timebuf[ZLOG_BUFFER_TIME_STR_MAX_LEN];
+        struct timeval tv;
+        //time_t curtime;
+        char* buffer = NULL;
 
-    va_start(va, fmt);
-    buffer = zlog_get_buffer();
-    vsnprintf(buffer, ZLOG_BUFFER_STR_MAX_LEN, fmt, va);
-    zlog_finish_buffer();
-    va_end(va);
+        time_t ltime;
+        ltime = time(NULL);
+        struct tm *tm_struct = localtime(&ltime);
+
+        va_list va;
+
+        gettimeofday(&tv, NULL);
+        //curtime=tv.tv_sec;
+    #ifdef ZLOG_REAL_WORLD_TIME
+        strftime(timebuf, ZLOG_BUFFER_TIME_STR_MAX_LEN, "%m-%d-%Y %T", localtime(&curtime));
+    #else
+        snprintf(timebuf, ZLOG_BUFFER_TIME_STR_MAX_LEN, "%d:%02d:%d", tm_struct->tm_hour, tm_struct->tm_min, tm_struct->tm_sec);
+    #endif
+        buffer = zlog_get_buffer();
+        snprintf(buffer, ZLOG_BUFFER_STR_MAX_LEN, "[%s.%06lds] ", timebuf, tv.tv_usec);
+        buffer += strlen(timebuf) + 11; // space for time
+
+        va_start(va, fmt);
+        vsnprintf(buffer, ZLOG_BUFFER_STR_MAX_LEN, fmt, va);
+        zlog_finish_buffer();
+        va_end(va);
+    }
 }
 
-void zlogf_time(char const * fmt, ...)
+void zlog_time(int msg_level, char* filename, int line, char const * fmt, ...)
 {
 #ifdef ZLOG_DISABLE_LOG
     return ;
 #endif
+    if(msg_level <= ZLOG_LOG_LEVEL){
+        static char timebuf[ZLOG_BUFFER_TIME_STR_MAX_LEN];
+        struct timeval tv;
+        time_t curtime;
+        char* buffer = NULL;
 
-    char timebuf[ZLOG_BUFFER_TIME_STR_MAX_LEN];
-    struct timeval tv;
-    time_t curtime;
-    char* buffer = NULL;
+        va_list va;
 
-    va_list va;
+        gettimeofday(&tv, NULL);
+        curtime=tv.tv_sec;
+    #ifdef ZLOG_REAL_WORLD_TIME
+        strftime(timebuf, ZLOG_BUFFER_TIME_STR_MAX_LEN, "%m-%d-%Y %T", localtime(&curtime));
+    #else
+        snprintf(timebuf, ZLOG_BUFFER_TIME_STR_MAX_LEN, "%ld", curtime);
+    #endif
 
-    gettimeofday(&tv, NULL);
-    curtime=tv.tv_sec;
-#ifdef ZLOG_REAL_WORLD_TIME
-    strftime(timebuf, ZLOG_BUFFER_TIME_STR_MAX_LEN, "%m-%d-%Y %T", localtime(&curtime));
-#else
-    snprintf(timebuf, ZLOG_BUFFER_TIME_STR_MAX_LEN, "%ld", curtime);
-#endif
-    buffer = zlog_get_buffer();
-    snprintf(buffer, ZLOG_BUFFER_STR_MAX_LEN, "[%s.%06lds] ", timebuf, tv.tv_usec);
-    buffer += strlen(timebuf) + 11; // space for time
+        buffer = zlog_get_buffer();
+        snprintf(buffer, ZLOG_BUFFER_STR_MAX_LEN, "[%s.%06lds] [@%s:%d] ", timebuf, tv.tv_usec, filename, line);
+        buffer += strlen(buffer); // print at most 5 digit of line
 
-    va_start(va, fmt);
-    vsnprintf(buffer, ZLOG_BUFFER_STR_MAX_LEN, fmt, va);
-    zlog_finish_buffer();
-    va_end(va);
+        va_start(va, fmt);
+        vsnprintf(buffer, ZLOG_BUFFER_STR_MAX_LEN, fmt, va);
+        zlog_finish_buffer();
+        va_end(va);
+    }
 }
 
-void zlog_time(char* filename, int line, char const * fmt, ...)
+void zlog(int msg_level, char* filename, int line, char const * fmt, ...)
 {
 #ifdef ZLOG_DISABLE_LOG
     return ;
 #endif
+    if(msg_level <= ZLOG_LOG_LEVEL){
+        char* buffer = NULL;
+        va_list va;
 
-    static char timebuf[ZLOG_BUFFER_TIME_STR_MAX_LEN];
-    struct timeval tv;
-    time_t curtime;
-    char* buffer = NULL;
-
-    va_list va;
-
-    gettimeofday(&tv, NULL);
-    curtime=tv.tv_sec;
-#ifdef ZLOG_REAL_WORLD_TIME
-    strftime(timebuf, ZLOG_BUFFER_TIME_STR_MAX_LEN, "%m-%d-%Y %T", localtime(&curtime));
-#else
-    snprintf(timebuf, ZLOG_BUFFER_TIME_STR_MAX_LEN, "%ld", curtime);
-#endif
-
-    buffer = zlog_get_buffer();
-    snprintf(buffer, ZLOG_BUFFER_STR_MAX_LEN, "[%s.%06lds] [@%s:%d] ", timebuf, tv.tv_usec, filename, line);
-    buffer += strlen(buffer); // print at most 5 digit of line
-
-    va_start(va, fmt);
-    vsnprintf(buffer, ZLOG_BUFFER_STR_MAX_LEN, fmt, va);
-    zlog_finish_buffer();
-    va_end(va);
+        buffer = zlog_get_buffer();
+        snprintf(buffer, ZLOG_BUFFER_STR_MAX_LEN, "[@%s:%d] ", filename, line);
+        buffer += strlen(buffer);
+        va_start(va, fmt);
+        vsnprintf(buffer, ZLOG_BUFFER_STR_MAX_LEN, fmt, va);
+        zlog_finish_buffer();
+        va_end(va);
+    }
 }
 
-void zlog(char* filename, int line, char const * fmt, ...)
-{
+const char* zlog_get_log_file_name(){
 #ifdef ZLOG_DISABLE_LOG
     return ;
 #endif
-
-    char* buffer = NULL;
-    va_list va;
-
-    buffer = zlog_get_buffer();
-    snprintf(buffer, ZLOG_BUFFER_STR_MAX_LEN, "[@%s:%d] ", filename, line);
-    buffer += strlen(buffer);
-    va_start(va, fmt);
-    vsnprintf(buffer, ZLOG_BUFFER_STR_MAX_LEN, fmt, va);
-    zlog_finish_buffer();
-    va_end(va);
+    return zlog_file_log_name;
 }
 
 // End zlog utilities
