@@ -2,7 +2,7 @@
 #                                                                                 #
 # NAME: meson.build                                                               #
 #                                                                                 #
-# AUTHOR: Mike Karlesky, Mark VanderVoord, Greg Williams.                         #
+# AUTHOR: Zhiqiang Ma.                                                            #
 # WRITTEN BY: Michael Brockus.                                                    #
 #                                                                                 #
 # License: MIT                                                                    #
@@ -11,8 +11,7 @@
 
 
 
-project('cmock', 'c',
-    version         : '2.4.6',
+project('zlog', 'c',
     license         : 'MIT',
     meson_version   : '>=0.50.0',
     subproject_dir  : 'vendor',
@@ -28,7 +27,7 @@ project('cmock', 'c',
 cc = meson.get_compiler('c')
 args_for_langs = 'c'
 
-unity_dep = dependency('unity', fallback: [ 'unity', 'unity_dep' ])
+thread_dep = dependency('threads')
 
 ##
 #
@@ -91,9 +90,13 @@ if cc.get_id() == 'msvc'
         ), language: args_for_langs)
 endif
 
-subdir('src')
+zlog_dir = include_directories('.')
 
-cmock_dep = declare_dependency(
-    version: meson.project_version(),
-    link_with: cmock_lib,
-    include_directories: cmock_dir)
+zlog_lib = library(meson.project_name(), 
+    sources: ['zlog.c'],
+    dependencies: thread_dep,
+    include_directories: zlog_dir)
+
+zlog_dep = declare_dependency(
+    link_with: zlog_lib,
+    include_directories: zlog_dir)
