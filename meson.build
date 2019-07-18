@@ -5,14 +5,13 @@
 # AUTHOR: Zhiqiang Ma.                                                            #
 # WRITTEN BY: Michael Brockus.                                                    #
 #                                                                                 #
-# License: MIT                                                                    #
+# License: Unlicense                                                              #
 #                                                                                 #
 ###################################################################################
 
 
 
 project('zlog', 'c',
-    license         : 'MIT',
     meson_version   : '>=0.50.0',
     subproject_dir  : 'vendor',
     default_options : 
