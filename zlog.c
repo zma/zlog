@@ -28,17 +28,17 @@ int _zlog_buffer_size = 0;
 pthread_mutex_t _zlog_buffer_mutex = PTHREAD_MUTEX_INITIALIZER;
 // --------------------------------------------------------------
 
-static inline void _zlog_buffer_lock()
+static inline void _zlog_buffer_lock(void)
 {
     pthread_mutex_lock(&_zlog_buffer_mutex);
 }
 
-static inline void _zlog_buffer_unlock()
+static inline void _zlog_buffer_unlock(void)
 {
     pthread_mutex_unlock(&_zlog_buffer_mutex);
 }
 
-static void _zlog_flush_buffer()
+static void _zlog_flush_buffer(void)
 {
     int i = 0;
     for (i = 0; i < _zlog_buffer_size; i++) {
@@ -52,7 +52,7 @@ static void _zlog_flush_buffer()
 // then zlog_finish_buffer
 //
 // zlog_get_buffer may flush the buffer, which require I/O ops
-static inline char* zlog_get_buffer()
+static inline char* zlog_get_buffer(void)
 {
     _zlog_buffer_lock();
     if (_zlog_buffer_size == ZLOG_BUFFER_SIZE) {
@@ -64,7 +64,7 @@ static inline char* zlog_get_buffer()
     return _zlog_buffer[_zlog_buffer_size-1];
 }
 
-static inline void zlog_finish_buffer()
+static inline void zlog_finish_buffer(void)
 {
 #ifdef ZLOG_FORCE_FLUSH_BUFFER
     _zlog_flush_buffer();
@@ -90,17 +90,17 @@ void zlog_init(char const* log_file)
     }
 }
 
-void zlog_init_stdout()
+void zlog_init_stdout(void)
 {
     zlog_fout = stdout;
 }
 
-void zlog_init_stderr()
+void zlog_init_stderr(void)
 {
     zlog_fout = stderr;
 }
 
-void* zlog_buffer_flush_thread()
+static void* zlog_buffer_flush_thread()
 {
     struct timeval tv;
     time_t lasttime;
@@ -134,21 +134,21 @@ void* zlog_buffer_flush_thread()
     return NULL;
 }
 
-void zlog_init_flush_thread()
+void zlog_init_flush_thread(void)
 {
     pthread_t thr;
     pthread_create(&thr, NULL, zlog_buffer_flush_thread, NULL);
     zlogf_time(ZLOG_LOG_LEVEL, "Flush thread is created.\n");
 }
 
-void zlog_flush_buffer()
+void zlog_flush_buffer(void)
 {
     _zlog_buffer_lock();
     _zlog_flush_buffer();
     _zlog_buffer_unlock();
 }
 
-void zlog_finish()
+void zlog_finish(void)
 {
     zlog_flush_buffer();
     if (zlog_fout != stdout || zlog_fout != stderr) {
@@ -169,6 +169,7 @@ inline void zlogf(int msg_level, char const * fmt, ...)
 
         va_start(va, fmt);
         buffer = zlog_get_buffer();
+        
         vsnprintf(buffer, ZLOG_BUFFER_STR_MAX_LEN, fmt, va);
         zlog_finish_buffer();
         va_end(va);
@@ -201,7 +202,7 @@ void zlogf_time(int msg_level, char const * fmt, ...)
         snprintf(timebuf, ZLOG_BUFFER_TIME_STR_MAX_LEN, "%d:%02d:%d", tm_struct->tm_hour, tm_struct->tm_min, tm_struct->tm_sec);
     #endif
         buffer = zlog_get_buffer();
-        snprintf(buffer, ZLOG_BUFFER_STR_MAX_LEN, "[%s.%06lds] ", timebuf, tv.tv_usec);
+        snprintf(buffer, ZLOG_BUFFER_STR_MAX_LEN, "[%s.%06ds] ", timebuf, tv.tv_usec);
         buffer += strlen(timebuf) + 11; // space for time
 
         va_start(va, fmt);
@@ -233,7 +234,7 @@ void zlog_time(int msg_level, char* filename, int line, char const * fmt, ...)
     #endif
 
         buffer = zlog_get_buffer();
-        snprintf(buffer, ZLOG_BUFFER_STR_MAX_LEN, "[%s.%06lds] [@%s:%d] ", timebuf, tv.tv_usec, filename, line);
+        snprintf(buffer, ZLOG_BUFFER_STR_MAX_LEN, "[%s.%06ds] [@%s:%d] ", timebuf, tv.tv_usec, filename, line);
         buffer += strlen(buffer); // print at most 5 digit of line
 
         va_start(va, fmt);
@@ -256,13 +257,14 @@ void zlog(int msg_level, char* filename, int line, char const * fmt, ...)
         snprintf(buffer, ZLOG_BUFFER_STR_MAX_LEN, "[@%s:%d] ", filename, line);
         buffer += strlen(buffer);
         va_start(va, fmt);
+        
         vsnprintf(buffer, ZLOG_BUFFER_STR_MAX_LEN, fmt, va);
         zlog_finish_buffer();
         va_end(va);
     }
 }
 
-const char* zlog_get_log_file_name(){
+const char* zlog_get_log_file_name(void){
 #ifdef ZLOG_DISABLE_LOG
     return ;
 #endif

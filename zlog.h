@@ -24,11 +24,11 @@ void zlog_init_stdout(void);
 // initialize zlog: flush to a STDERR
 void zlog_init_stderr(void);
 // creating a flushing thread
-void zlog_init_flush_thread();
+void zlog_init_flush_thread(void);
 // finish using the zlog; clean up
-void zlog_finish();
+void zlog_finish(void);
 // explicitely flush the buffer in memory
-void zlog_flush_buffer();
+void zlog_flush_buffer(void);
 
 // log an entry; using the printf format
 void zlogf(int msg_level, char const * fmt, ...);
@@ -45,7 +45,7 @@ void zlog(int msg_level, char* filename, int line, char const * fmt, ...);
 void zlog_time(int msg_level, char* filename, int line, char const * fmt, ...);
 
 // return where logs are being written (file absolute path)
-const char* zlog_get_log_file_name();
+const char* zlog_get_log_file_name(void);
 
 
 // End API
