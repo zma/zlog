@@ -12,8 +12,8 @@
 
 
 project('zlog', 'c',
+    license         : 'Unlicense',
     meson_version   : '>=0.50.0',
-    subproject_dir  : 'vendor',
     default_options : 
     [ 
         'werror=true',
