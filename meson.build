@@ -91,7 +91,7 @@ endif
 
 zlog_dir = include_directories('.')
 
-zlog_lib = library(meson.project_name(), 
+zlog_lib = static_library(meson.project_name(), 
     sources: ['zlog.c'],
     dependencies: thread_dep,
     include_directories: zlog_dir)
