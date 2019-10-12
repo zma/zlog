@@ -19,11 +19,8 @@ project('zlog', 'c',
         'werror=true',
         'optimization=3', 
         'warning_level=3', 
-        'b_sanitize=address,undefined', 
-        'b_lto=true', 
-        'b_lundef=true'
-    ])
-
+    ]
+)
 lang = 'c'
 cc = meson.get_compiler(lang)
 
