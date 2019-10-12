@@ -9,8 +9,6 @@
 #                                                                                 #
 ###################################################################################
 
-
-
 project('zlog', 'c',
     license         : 'Unlicense',
     meson_version   : '>=0.52.0',
@@ -18,7 +16,7 @@ project('zlog', 'c',
     [ 
         'werror=true',
         'optimization=3', 
-        'warning_level=3', 
+        'warning_level=3'
     ]
 )
 lang = 'c'
@@ -68,13 +66,11 @@ endif
 thread_dep = dependency('threads')
 
 
-zlog_dir = include_directories('.')
-
 zlog_lib = static_library(meson.project_name(), 
     sources: ['zlog.c'],
     dependencies: thread_dep,
-    include_directories: zlog_dir)
+    include_directories: include_directories('.'))
 
 zlog_dep = declare_dependency(
     link_with: zlog_lib,
-    include_directories: zlog_dir)
+    include_directories: include_directories('.'))
