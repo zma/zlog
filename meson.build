@@ -13,7 +13,7 @@
 
 project('zlog', 'c',
     license         : 'Unlicense',
-    meson_version   : '>=0.50.0',
+    meson_version   : '>=0.52.0',
     default_options : 
     [ 
         'werror=true',
