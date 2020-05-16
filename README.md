@@ -1,14 +1,12 @@
-# zlog #
+# zlog - a C In-memory Logging Library
 
-A C In-memory Logging Library
-
-Hompage: http://www.ericzma.com/projects/zlog/
+Hompage: https://www.ericzma.com/projects/zlog/
 
 ## Introduction ##
 
 zlog is a C in-memory logging library. It allocates a buffer in memory for logging, and flush the buffer to the log file (or stdout) when the buffer is full, or it is instructed explicitly by the program or flushing thread.
 
-### Ejecution example ###
+### Usage example ###
 
 Example.c represents an use example of zlog library containing both INFO
 and DEBUG messages. If you want to include DEBUG messages you must compile
@@ -26,12 +24,8 @@ following Make commands can be used to compile either in DEBUG or INFO modes:
 
 Source code of zlog can be downloaded from http://github.com/zma/zlog/ . The source code is released into the public domain.
 
-## Author ##
+## Authors and contributors##
 
-Zhiqiang Ma (http://www.ericzma.com).
-
-### Contributions ###
-
-RazviOverflow (https://github.com/RazviOverflow)
-
+- Eric Ma (https://www.ericzma.com).
+- RazviOverflow (https://github.com/RazviOverflow)
 

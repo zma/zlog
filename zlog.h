@@ -1,3 +1,9 @@
+/*
+ * Zlog utility
+ * By: Eric Ma https://www.ericzma.com
+ * Released under Unlicense
+ */
+
 #ifndef ZLOG_H_
 # define ZLOG_H_
 
@@ -9,9 +15,9 @@
 #define ZLOG_INFO_LOG_MSG 0
 
 #ifdef DEBUG
-	#define ZLOG_LOG_LEVEL 1
+    #define ZLOG_LOG_LEVEL 1
 #else
-	#define ZLOG_LOG_LEVEL 0
+    #define ZLOG_LOG_LEVEL 0
 #endif
 
 extern FILE* zlog_fout;
@@ -48,7 +54,6 @@ void zlog_time(int msg_level, char* filename, int line, char const * fmt, ...);
 
 // return where logs are being written (file absolute path)
 const char* zlog_get_log_file_name(void);
-
 
 // End API
 

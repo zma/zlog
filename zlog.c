@@ -116,9 +116,9 @@ static void* zlog_buffer_flush_thread()
         curtime = tv.tv_sec;
         if ( (curtime - lasttime) >= ZLOG_FLUSH_INTERVAL_SEC ) {
             // ZLOG_LOG_LEVEL is used to make the buffer flushing
-            // seamless for the user. It does not matter what level
+            // seamlessly for the users. It does not matter what level
             // the messages are at this point because, if they do
-            // not meet message level requirement, thay wouldn't
+            // not meet message level requirement, that wouldn't
             // have been buffered in the first place.
             zlogf_time(ZLOG_LOG_LEVEL, "Flush buffer.\n");
             zlog_flush_buffer();
