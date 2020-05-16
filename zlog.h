@@ -1,6 +1,8 @@
 #ifndef ZLOG_H_
 # define ZLOG_H_
 
+#include<stdio.h>
+
 #define ZLOG_LOC __FILE__, __LINE__
 
 #define ZLOG_DEBUG_LOG_MSG 1
@@ -27,7 +29,7 @@ void zlog_init_stderr(void);
 void zlog_init_flush_thread(void);
 // finish using the zlog; clean up
 void zlog_finish(void);
-// explicitely flush the buffer in memory
+// Explicitly flush the buffer in memory
 void zlog_flush_buffer(void);
 
 // log an entry; using the printf format

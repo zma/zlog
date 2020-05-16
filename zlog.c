@@ -1,6 +1,6 @@
 /*
  * Zlog utility
- * Written by Zhiqiang Ma http://www.ericzma.com
+ * By: Eric Ma https://www.ericzma.com
  * Released under Unlicense
  */
 
