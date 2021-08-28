@@ -24,7 +24,7 @@ following Make commands can be used to compile either in DEBUG or INFO modes:
 
 Source code of zlog can be downloaded from http://github.com/zma/zlog/ . The source code is released into the public domain.
 
-## Authors and contributors##
+## Authors and contributors ##
 
 - Eric Ma (https://www.ericzma.com).
 - RazviOverflow (https://github.com/RazviOverflow)
