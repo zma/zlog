@@ -6,6 +6,7 @@
 
 #include <stdio.h>
 #include <stdarg.h>
+#include <stdlib.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <sys/time.h>
@@ -105,7 +106,8 @@ static void* zlog_buffer_flush_thread(void* interval_sec)
     struct timeval tv;
     time_t lasttime;
     time_t curtime;
-    int flush_interval = (int)(intptr_t)interval_sec;
+    int flush_interval = *(int*)interval_sec;
+    free(interval_sec);
     int sleep_time_sec = ZLOG_SLEEP_TIME_SEC > flush_interval ? flush_interval : ZLOG_SLEEP_TIME_SEC;
 
     gettimeofday(&tv, NULL);
@@ -144,7 +146,9 @@ void zlog_init_flush_thread(void)
 void zlog_init_flush_thread_with_interval(int interval_sec)
 {
     pthread_t thr;
-    pthread_create(&thr, NULL, zlog_buffer_flush_thread, (void*)(intptr_t)interval_sec);
+    int* interval = (int*)malloc(sizeof(int));
+    *interval = interval_sec;
+    pthread_create(&thr, NULL, zlog_buffer_flush_thread, (void*)interval);
     zlogf_time(ZLOG_LOG_LEVEL, "Flush thread is created.\n");
 }
 
