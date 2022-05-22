@@ -100,21 +100,23 @@ void zlog_init_stderr(void)
     zlog_fout = stderr;
 }
 
-static void* zlog_buffer_flush_thread()
+static void* zlog_buffer_flush_thread(void* interval_sec)
 {
     struct timeval tv;
     time_t lasttime;
     time_t curtime;
+    int flush_interval = (int)(intptr_t)interval_sec;
+    int sleep_time_sec = ZLOG_SLEEP_TIME_SEC > flush_interval ? flush_interval : ZLOG_SLEEP_TIME_SEC;
 
     gettimeofday(&tv, NULL);
 
     lasttime = tv.tv_sec;
 
     do {
-        sleep(ZLOG_SLEEP_TIME_SEC);
+        sleep(sleep_time_sec);
         gettimeofday(&tv, NULL);
         curtime = tv.tv_sec;
-        if ( (curtime - lasttime) >= ZLOG_FLUSH_INTERVAL_SEC ) {
+        if ( (curtime - lasttime) >= flush_interval ) {
             // ZLOG_LOG_LEVEL is used to make the buffer flushing
             // seamlessly for the users. It does not matter what level
             // the messages are at this point because, if they do
@@ -136,8 +138,13 @@ static void* zlog_buffer_flush_thread()
 
 void zlog_init_flush_thread(void)
 {
+    zlog_init_flush_thread_with_interval(ZLOG_FLUSH_INTERVAL_SEC);
+}
+
+void zlog_init_flush_thread_with_interval(int interval_sec)
+{
     pthread_t thr;
-    pthread_create(&thr, NULL, zlog_buffer_flush_thread, NULL);
+    pthread_create(&thr, NULL, zlog_buffer_flush_thread, (void*)(intptr_t)interval_sec);
     zlogf_time(ZLOG_LOG_LEVEL, "Flush thread is created.\n");
 }
 

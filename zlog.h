@@ -33,6 +33,8 @@ void zlog_init_stdout(void);
 void zlog_init_stderr(void);
 // creating a flushing thread
 void zlog_init_flush_thread(void);
+// create flush thread with flush interval
+void zlog_init_flush_thread_with_interval(int interval_sec);
 // finish using the zlog; clean up
 void zlog_finish(void);
 // Explicitly flush the buffer in memory
